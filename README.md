@@ -23,7 +23,7 @@ This is a functional chat user interface built with Next.js (App Router), React,
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Link to Deployed Application
-**[Insert your Vercel Deployment Link here before submitting!]**
+[https://metawurks-chat-ui-iota.vercel.app](https://metawurks-chat-ui-iota.vercel.app)
 
 ## Challenges Faced and Solutions
 
