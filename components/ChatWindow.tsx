@@ -44,7 +44,7 @@ export default function ChatWindow() {
       }
 
       const data = await res.json();
-      
+
       const botMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: data.reply,
@@ -64,9 +64,9 @@ export default function ChatWindow() {
   return (
     <div className="flex flex-col h-full bg-gray-50 dark:bg-gray-950">
       <header className="px-6 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-sm z-10 flex items-center justify-center">
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Metawurks Chat Interface</h1>
+        <h1 className="text-lg font-semibold text-gray-800 dark:text-gray-100">AI Assistant</h1>
       </header>
-      
+
       <div className="flex-1 overflow-y-auto p-4 md:p-6 w-full">
         <div className="max-w-4xl mx-auto flex flex-col space-y-1">
           {messages.length === 0 ? (
@@ -79,7 +79,7 @@ export default function ChatWindow() {
               <Message key={msg.id} message={msg} />
             ))
           )}
-          
+
           {isLoading && (
             <div className="flex justify-start my-2">
               <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-4 rounded-2xl rounded-tl-sm flex items-center space-x-2 shadow-sm">
@@ -97,7 +97,7 @@ export default function ChatWindow() {
               </span>
             </div>
           )}
-          
+
           <div ref={messagesEndRef} className="h-4" />
         </div>
       </div>

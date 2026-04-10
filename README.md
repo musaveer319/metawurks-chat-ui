@@ -25,10 +25,10 @@ This is a functional chat user interface built with Next.js (App Router), React,
 ## Link to Deployed Application
 [https://metawurks-chat-ui-iota.vercel.app](https://metawurks-chat-ui-iota.vercel.app)
 
-## Challenges Faced and Solutions
+## Challenges and Solutions
 
-- **Challenge**: Managing the auto-scroll behavior for new messages, particularly ensuring the scroll captures the bottom of the view even when the "typing indicator" dynamically toggles visibility.
-  - **Solution**: Implemented a `useRef` pointing to an anchor `div` at the very bottom of the render area. A `useEffect` hook was attached with dependencies on both `messages` and `isLoading`, triggering `scrollIntoView({ behavior: "smooth" })` to ensure the user always sees the most recent state accurately.
+- **Auto-scrolling to new messages**: Keeping the view at the bottom when new texts or typing dots appear.
+  - **Solution**: Added an empty `div` at the bottom and used `useEffect` to scroll to it automatically.
 
-- **Challenge**: Simulating an authentic backend response delay to replicate live AI generation latency without artificially blocking the frontend thread loop.
-  - **Solution**: Created a fully isolated Next.js `Route Handler` inside `/app/api/chat/route.ts` that safely accepts asynchronous `POST` requests and implements an `await new Promise(...)` with `setTimeout` natively before forwarding the JSON reply. This decoupled architecture cleanly fulfills frontend-backend separation requirements seamlessly!
+- **Faking AI delay**: Simulating a slow AI response without freezing the app.
+  - **Solution**: Made an API route that waits using a simple timer before sending the reply.
