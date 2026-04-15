@@ -1,12 +1,20 @@
-# Metawurks Chat UI Internship Task
+# NexusChat - Multi-AI Chat Platform
 
 ## Project Description
-This is a functional chat user interface built with Next.js (App Router), React, and Tailwind CSS. It serves as a foundational UI for communicating with an AI chatbot, currently utilizing a mock backend API to simulate realistic "thinking/inference" delays. The project focuses on a clean and professional responsive design, reusable component architecture, and proper React state management to manage real-time UI updates seamlessly.
+NexusChat is a fully functional, high-performance chat interface built with **Next.js (App Router)**, **TypeScript**, and **Tailwind CSS**. It provides a premium, responsive multi-AI chatting experience integrating real-world AI models directly into the browser. 
+
+The application has been heavily optimized for stability and perceived performance, migrating completely away from local storage to cloud persistence, and replacing sluggish API generation with instantaneous data streaming.
+
+### Core Features:
+- **Multi-AI Provider Integration**: Dynamically switch between **Groq** (Llama 3 8B, 70B, Mixtral) and **Mistral AI** free-tier inference APIs.
+- **Real-Time Text Streaming**: Deeply integrated **Server-Sent Events (SSE)** architecture Streams exact tokens directly from the models into the React UI with zero-latency "typing" effects.
+- **MongoDB Atlas Persistence**: Chat histories and metadata are saved instantly into a secure cloud NoSQL database using optimized Mongoose pooling.
+- **Custom Personas & Models**: Switch AI "personalities" on the fly along with Markdown rendering and syntax-highlighted code blocks.
 
 ## How to Run Locally
 
 1. **Ensure you have Node.js installed** (version 18+).
-2. **Clone the repository** (if downloading fresh):
+2. **Clone the repository**:
    ```bash
    git clone <your-repository-url>
    cd chat-ui
@@ -15,20 +23,28 @@ This is a functional chat user interface built with Next.js (App Router), React,
    ```bash
    npm install
    ```
-4. **Start the local development server**:
+4. **Configure Environment Variables**:
+   Create a `.env.local` file in the root with the following keys:
+   ```env
+   GROQ_API_KEY=your_key
+   MISTRAL_API_KEY=your_key
+   MONGODB_URI=your_mongodb_atlas_connection_string
+   ```
+5. **Start the development server**:
    ```bash
    npm run dev
    ```
-5. **View the Application**:
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+6. **View the Application**: Open [http://localhost:3000](http://localhost:3000)
 
 ## Link to Deployed Application
 [https://metawurks-chat-ui-iota.vercel.app](https://metawurks-chat-ui-iota.vercel.app)
 
-## Challenges and Solutions
+## Major Technical Solutions
 
-- **Auto-scrolling to new messages**: Keeping the view at the bottom when new texts or typing dots appear.
-  - **Solution**: Added an empty `div` at the bottom and used `useEffect` to scroll to it automatically.
+- **Zero-Latency Perceived Performance**: 
+  - **Challenge**: Waiting for an AI to generate a 2000-token response caused massive 30-second UI stalls. 
+  - **Solution**: Engineered a real-time SSE extraction loop that decodes binary stream chunks server-side, preventing UI lockups and instantly dripping characters to the screen.
 
-- **Faking AI delay**: Simulating a slow AI response without freezing the app.
-  - **Solution**: Made an API route that waits using a simple timer before sending the reply.
+- **Stable Database Pooling in Serverless Environments**: 
+  - **Challenge**: Next.js HMR (Hot Module Replacement) and Serverless scaling consistently duplicated MongoDB connections, eventually draining connection pools and locking the app. 
+  - **Solution**: Developed a strongly typed Mongoose global caching singleton strategy that bypasses Next.js re-compilation leaks.

@@ -1,19 +1,43 @@
-import React, { useState, KeyboardEvent } from 'react';
+'use client';
+
+import React, { useState, KeyboardEvent, useRef, useEffect } from 'react';
 
 interface InputAreaProps {
   onSendMessage: (message: string) => void;
   isLoading: boolean;
+  providerColor?: string;
+  disabled?: boolean;
 }
 
-export default function InputArea({ onSendMessage, isLoading }: InputAreaProps) {
+const MAX_CHARS = 4000;
+
+export default function InputArea({ onSendMessage, isLoading, providerColor, disabled }: InputAreaProps) {
   const [input, setInput] = useState('');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isSubmitting = useRef(false);
+
+  useEffect(() => {
+    const ta = textareaRef.current;
+    if (ta) {
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
+    }
+  }, [input]);
 
   const handleSend = () => {
-    if (input.trim() && !isLoading) {
+    if (input.trim() && !isLoading && !disabled && !isSubmitting.current) {
+      isSubmitting.current = true;
       onSendMessage(input.trim());
       setInput('');
+      if (textareaRef.current) textareaRef.current.style.height = 'auto';
     }
   };
+
+  useEffect(() => {
+    if (!isLoading) {
+      isSubmitting.current = false;
+    }
+  }, [isLoading]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -22,26 +46,69 @@ export default function InputArea({ onSendMessage, isLoading }: InputAreaProps) 
     }
   };
 
+  const charCount = input.length;
+  const nearLimit = charCount > MAX_CHARS * 0.85;
+  const atLimit = charCount >= MAX_CHARS;
+
+  const accentColor = providerColor ?? '#7c6bff';
+
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
-      <div className="flex items-end gap-2 max-w-4xl mx-auto">
-        <textarea
-          className="flex-1 px-6 py-4 bg-gray-100 outline-none border border-transparent dark:bg-gray-800 focus:bg-white dark:focus:bg-gray-950 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-2xl text-gray-900 dark:text-gray-100 transition-all text-lg resize-none"
-          placeholder="Type your message..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={isLoading}
-          rows={3}
-          autoFocus
-        />
-        <button
-          onClick={handleSend}
-          disabled={!input.trim() || isLoading}
-          className="px-8 py-4 mb-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:text-gray-500 dark:disabled:text-gray-500 disabled:cursor-not-allowed text-white font-medium rounded-full transition-all flex items-center justify-center shadow-sm text-lg"
+    <div className="input-area-wrapper">
+      <div className="input-area-inner">
+        {/* Textarea wrapper */}
+        <div
+          className="input-box-shell"
+          style={{ '--provider-color': accentColor } as React.CSSProperties}
         >
-          Send
-        </button>
+          <textarea
+            ref={textareaRef}
+            className="chat-input"
+            placeholder="Ask anything… (Shift+Enter for newline)"
+            value={input}
+            onChange={(e) => setInput(e.target.value.slice(0, MAX_CHARS))}
+            onKeyDown={handleKeyDown}
+            disabled={isLoading || disabled}
+            rows={1}
+            autoFocus
+          />
+
+          {/* Send button */}
+          <button
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading || disabled}
+            className="send-btn"
+            title="Send (Enter)"
+            style={{
+              background: input.trim() && !isLoading
+                ? `linear-gradient(135deg, ${accentColor}, ${accentColor}bb)`
+                : undefined,
+            }}
+          >
+            {isLoading ? (
+              <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4" />
+                <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="white" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Footer row */}
+        <div className="input-footer">
+          <span className="input-hint">
+            <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for newline
+          </span>
+          <span
+            className="char-count"
+            style={{ color: atLimit ? '#f87171' : nearLimit ? '#fbbf24' : 'var(--text-muted)' }}
+          >
+            {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}
+          </span>
+        </div>
       </div>
     </div>
   );
