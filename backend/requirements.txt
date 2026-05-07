@@ -1,0 +1,16 @@
+agno
+fastapi
+uvicorn
+pydantic
+groq
+mistralai
+tavily-python
+python-dotenv
+python-multipart
+pymongo
+sentence-transformers
+PyMuPDF
+python-docx
+pandas
+langchain-text-splitters
+openpyxl

@@ -1,7 +1,7 @@
-# NexusChat - Multi-AI Chat Platform
+# Chat Ai - Multi-AI Chat Platform
 
 ## Project Description
-NexusChat is a fully functional, high-performance chat interface built with **Next.js (App Router)**, **TypeScript**, and **Tailwind CSS**. It provides a premium, responsive multi-AI chatting experience integrating real-world AI models directly into the browser. 
+Chat Ai is a fully functional, high-performance chat interface built with **Next.js (App Router)**, **TypeScript**, and **Tailwind CSS**. It provides a premium, responsive multi-AI chatting experience integrating real-world AI models directly into the browser. 
 
 The application has been heavily optimized for stability and perceived performance, migrating completely away from local storage to cloud persistence, and replacing sluggish API generation with instantaneous data streaming.
 

@@ -53,7 +53,7 @@ export default function ChatWindow() {
       const c = data.conversation;
       const provider = AI_PROVIDERS.find((p) => p.id === c.provider) ?? AI_PROVIDERS[0];
       setSelectedProvider(provider);
-      setSelectedModel(c.model);
+      setSelectedModel(c.modelId || c.model || provider.models[0].id);
       setSelectedSystemPrompt(c.persona);
       setMessages(
         c.messages.map((m: ChatMessage, i: number) => ({
@@ -208,7 +208,7 @@ export default function ChatWindow() {
   const handleExportChat = () => {
     const sp = SYSTEM_PROMPTS.find((p) => p.id === selectedSystemPrompt);
     const lines = [
-      `# NexusChat Export`,
+      `# Chat Ai Export`,
       `Model: ${selectedProvider.shortName} — ${selectedProvider.models.find((m) => m.id === selectedModel)?.name}`,
       `Persona: ${sp?.label}`,
       `Date: ${new Date().toLocaleString()}`,
@@ -221,7 +221,7 @@ export default function ChatWindow() {
     const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href = url; a.download = `nexuschat-${Date.now()}.md`; a.click();
+    a.href = url; a.download = `chat-ai-${Date.now()}.md`; a.click();
     URL.revokeObjectURL(url);
   };
 

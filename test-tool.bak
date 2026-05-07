@@ -1,0 +1,43 @@
+import { createGroq } from '@ai-sdk/groq';
+import { streamText, tool } from 'ai';
+import { z } from 'zod';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+
+async function test() {
+  const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+  const tavilyApiKey = process.env.TAVILY_API_KEY;
+
+  try {
+    const result = streamText({
+      model: groq('llama-3.1-8b-instant'),
+      messages: [{ role: 'user', content: 'What is the current weather in Paris?' }],
+      maxSteps: 3,
+      tools: {
+        webSearch: tool({
+          description: 'Search the web for up-to-date and real-time information.',
+          parameters: z.object({ query: z.string() }),
+          execute: async ({ query }) => {
+            console.log("\n[Tool Call] searching for:", query);
+            const res = await fetch('https://api.tavily.com/search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ api_key: tavilyApiKey, query, include_answer: true })
+            });
+            const data = await res.json();
+            if (data.answer) return data.answer;
+            return data.results?.map((r: any) => r.content).join('\n\n') || "none";
+          }
+        })
+      }
+    });
+
+    for await (const chunk of result.textStream) {
+      process.stdout.write(chunk);
+    }
+    console.log("\nDone.");
+  } catch(e) {
+    console.log("ERRORRR", e);
+  }
+}
+test();

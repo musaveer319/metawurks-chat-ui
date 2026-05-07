@@ -14,6 +14,7 @@ export interface IConversation extends Document {
   modelId: string;
   persona: string;
   messages: IMessage[];
+  userEmail: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,11 +34,14 @@ const ConversationSchema = new Schema<IConversation>(
     modelId: { type: String, required: true },
     persona: { type: String, required: true, default: 'default' },
     messages: { type: [MessageSchema], default: [] },
+    userEmail: { type: String, required: true },
   },
   {
     timestamps: true, // Automatically manages createdAt and updatedAt
   }
 );
 
-// Prevent mongoose from recompiling the model upon HMR in dev
-export default mongoose.models.Conversation || mongoose.model<IConversation>('Conversation', ConversationSchema);
+if (mongoose.models.Conversation) {
+  delete mongoose.models.Conversation;
+}
+export default mongoose.model<IConversation>('Conversation', ConversationSchema);

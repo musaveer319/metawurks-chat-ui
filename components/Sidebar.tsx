@@ -1,6 +1,8 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 import { AI_PROVIDERS, AIProvider, SYSTEM_PROMPTS } from '../lib/providers';
 
 interface ConversationMeta {
@@ -47,6 +49,7 @@ export default function Sidebar({
   conversations, activeConvId, onLoadConversation, onDeleteConversation, onNewChat,
 }: SidebarProps) {
   const [hoveredConv, setHoveredConv] = useState<string | null>(null);
+  const { data: session } = useSession();
 
   return (
     <aside className="sidebar slide-in-sidebar">
@@ -58,7 +61,7 @@ export default function Sidebar({
           </svg>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="sidebar-logo-title">NexusChat</p>
+          <p className="sidebar-logo-title">Chat Ai</p>
           <p className="sidebar-logo-sub">Free AI · MongoDB Powered</p>
         </div>
         <button onClick={onNewChat} className="new-chat-btn" title="New chat">
@@ -229,6 +232,34 @@ export default function Sidebar({
             Free · {conversations.length} chats saved
           </p>
         </div>
+
+        {session?.user && (
+          <div className="flex items-center gap-2 mt-4 pt-4 border-t" style={{ borderColor: 'var(--border)' }}>
+            {session.user.image ? (
+              <img src={session.user.image} alt="User" className="w-8 h-8 rounded-full border" style={{ borderColor: 'var(--border)' }} />
+            ) : (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shadow-sm" style={{ background: 'var(--bg-input)', borderColor: 'var(--border)', borderWidth: '1px' }}>
+                {(session.user.name || session.user.email || '?')[0].toUpperCase()}
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{session.user.name || 'User'}</p>
+              <p className="text-[10px] truncate" style={{ color: 'var(--text-muted)' }}>{session.user.email}</p>
+            </div>
+            <button 
+              onClick={() => signOut()} 
+              className="p-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-input)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              title="Logout"
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

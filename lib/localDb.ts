@@ -35,7 +35,7 @@ const readDb = (): IConversation[] => {
   try {
     const data = fs.readFileSync(DB_FILE, 'utf-8');
     return JSON.parse(data);
-  } catch (err) {
+  } catch {
     return [];
   }
 };

@@ -3,28 +3,32 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"next dev\" \"cd backend && python -m uvicorn main:app --reload --port 8000\"",
     "build": "next build",
-    "start": "next start",
+    "start": "concurrently \"next start\" \"cd backend && python -m uvicorn main:app --port 8000\"",
     "lint": "eslint"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.89.0",
-    "@google/generative-ai": "^0.24.1",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
     "marked": "^18.0.0",
     "mongoose": "^9.4.1",
     "next": "16.2.3",
+    "next-auth": "^4.24.14",
     "openai": "^6.34.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.3",
     "tailwindcss": "^4",

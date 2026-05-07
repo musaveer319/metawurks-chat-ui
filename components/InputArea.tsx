@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, KeyboardEvent, useRef, useEffect } from 'react';
+import React, { useState, KeyboardEvent, useRef, useEffect, ChangeEvent } from 'react';
 
 interface InputAreaProps {
   onSendMessage: (message: string) => void;
@@ -13,8 +13,43 @@ const MAX_CHARS = 4000;
 
 export default function InputArea({ onSendMessage, isLoading, providerColor, disabled }: InputAreaProps) {
   const [input, setInput] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isSubmitting = useRef(false);
+
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setIsUploading(true);
+      setUploadStatus('Uploading...');
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('provider', 'local');
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        
+        const data = await res.json();
+        if (res.ok) {
+          setUploadStatus('Ready');
+        } else {
+          setUploadStatus(`Error: ${data.error || 'Failed'}`);
+        }
+      } catch (err) {
+        setUploadStatus('Upload failed');
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -57,9 +92,28 @@ export default function InputArea({ onSendMessage, isLoading, providerColor, dis
       <div className="input-area-inner">
         {/* Textarea wrapper */}
         <div
-          className="input-box-shell"
+          className="input-box-shell flex items-end gap-2"
           style={{ '--provider-color': accentColor } as React.CSSProperties}
         >
+          {/* File input and attach button */}
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+            className="hidden" 
+          />
+          <button
+            type="button"
+            className="p-2 mb-1 text-gray-400 hover:text-white transition-colors disabled:opacity-50 flex-shrink-0"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isLoading || disabled || isUploading}
+            title="Attach file"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+            </svg>
+          </button>
+
           <textarea
             ref={textareaRef}
             className="chat-input"
@@ -99,9 +153,19 @@ export default function InputArea({ onSendMessage, isLoading, providerColor, dis
 
         {/* Footer row */}
         <div className="input-footer">
-          <span className="input-hint">
-            <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for newline
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="input-hint">
+              <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for newline
+            </span>
+            {selectedFile && (
+              <span className="text-xs text-gray-400 flex items-center gap-1">
+                📎 {selectedFile.name} 
+                <span className={uploadStatus === 'Ready' ? 'text-green-400' : 'text-yellow-400'}>
+                  ({uploadStatus})
+                </span>
+              </span>
+            )}
+          </div>
           <span
             className="char-count"
             style={{ color: atLimit ? '#f87171' : nearLimit ? '#fbbf24' : 'var(--text-muted)' }}
